@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 
+// Use the correct environment variable for server-side code
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
@@ -37,12 +38,14 @@ export default async function handler(req, res) {
         cancel_url: `${req.headers.origin}/canceled`,
       }
 
+      console.log("Stripe params:", params); // Log the params being sent to Stripe
+
       // Create Checkout Sessions from body params.
       const session = await stripe.checkout.sessions.create(params);
 
       res.status(200).json(session);
     } catch (err) {
-      console.error("Stripe session creation error:", err); // Log the error for debugging
+      console.log("Error in creating Stripe checkout session:", err); // Log the error message
       res.status(err.statusCode || 500).json({ error: err.message });
     }
   } else {
