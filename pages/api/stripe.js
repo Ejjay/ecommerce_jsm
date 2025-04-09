@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         ],
         line_items: req.body.map((item) => {
           const img = item.image[0].asset._ref;
-          const newImage = img.replace('image-', 'https://cdn.sanity.io/images/vfxfwnaw/production/').replace('-webp', '.webp');
+          const newImage = img.replace('image-', 'https://cdn.sanity.io/images/zun3oncs/production/').replace('-webp', '.webp');
 
           return {
             price_data: { 
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
               unit_amount: item.price * 100,
             },
             adjustable_quantity: {
-              enabled:true,
+              enabled: true,
               minimum: 1,
             },
             quantity: item.quantity
@@ -42,7 +42,8 @@ export default async function handler(req, res) {
 
       res.status(200).json(session);
     } catch (err) {
-      res.status(err.statusCode || 500).json(err.message);
+      console.error("Stripe session creation error:", err); // Log the error for debugging
+      res.status(err.statusCode || 500).json({ error: err.message });
     }
   } else {
     res.setHeader('Allow', 'POST');
